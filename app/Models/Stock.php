@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Clients\ClientException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -37,9 +38,16 @@ class Stock extends Model
         return $this->belongsTo(Retailer::class);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function track(): void
     {
         $status = 'App\\Clients\\'.Str::studly($this->retailer->name);
+
+        if (! class_exists($status)) {
+            throw new ClientException('Retailer not found for '.$this->retailer->name);
+        }
 
         $available = (new $status)->checkAvailability();
 
