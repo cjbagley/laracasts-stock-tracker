@@ -26,8 +26,6 @@ class Product extends Model
 
     public function track(): void
     {
-        $this->stock()->each(function (Stock $stock) {
-            $stock->track();
-        });
+        $this->stock->each->track();
     }
 }

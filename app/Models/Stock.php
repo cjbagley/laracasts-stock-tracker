@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Http;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class Stock extends Model
 {
@@ -39,12 +39,13 @@ class Stock extends Model
 
     public function track(): void
     {
-        if ($this->retailer->name == 'Best Buy') {
-            $r = Http::get('https://foo.bar/test/test/api')->json();
-            $this->update([
-                'in_stock' => $r['available'],
-                'price' => $r['price'],
-            ]);
-        }
+        $status = 'App\\Clients\\'.Str::studly($this->retailer->name);
+
+        $available = (new $status)->checkAvailability();
+
+        $this->update([
+            'in_stock' => $available->available,
+            'price' => $available->price,
+        ]);
     }
 }
