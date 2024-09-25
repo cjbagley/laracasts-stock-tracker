@@ -6,7 +6,6 @@ use App\Clients\ClientException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;
 
 class Stock extends Model
 {
@@ -39,21 +38,15 @@ class Stock extends Model
     }
 
     /**
-     * @throws \Exception
+     * @throws ClientException
      */
     public function track(): void
     {
-        $status = 'App\\Clients\\'.Str::studly($this->retailer->name);
-
-        if (! class_exists($status)) {
-            throw new ClientException('Retailer not found for '.$this->retailer->name);
-        }
-
-        $available = (new $status)->checkAvailability();
+        $availability = $this->retailer->client()->checkAvailability();
 
         $this->update([
-            'in_stock' => $available->available,
-            'price' => $available->price,
+            'in_stock' => $availability->available,
+            'price' => $availability->price,
         ]);
     }
 }
