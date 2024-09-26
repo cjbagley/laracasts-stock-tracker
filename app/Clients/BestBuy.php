@@ -13,7 +13,7 @@ class BestBuy implements Client
     {
         $r = Http::get($this->productEndpoint($stock->sku))->json();
 
-        return new StockStatus($r['onlineAvailability'], $r['salePrice'] * 100);
+        return new StockStatus($r['onlineAvailability'], $this->convertDollarsToCents($r['salePrice']));
     }
 
     public function productEndpoint(string $sku): string
@@ -21,5 +21,10 @@ class BestBuy implements Client
         return sprintf('%s/products/%s.json?apiKey=%s',
             self::BASE_URL, $sku, config('services.clients.bestbuy.api')
         );
+    }
+
+    private function convertDollarsToCents(float $amount): int
+    {
+        return (int) ($amount * 100);
     }
 }
