@@ -2,7 +2,9 @@
 
 namespace App\Clients;
 
+use App\Models\Stock;
+
 interface Client
 {
-    public function checkAvailability(): StockStatus;
+    public function checkAvailability(Stock $stock): StockStatus;
 }

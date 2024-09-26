@@ -30,7 +30,7 @@ it('updates local stock status after tracking', function () {
 
 class FakeClient implements Client
 {
-    public function checkAvailability(): StockStatus
+    public function checkAvailability(Stock $stock): StockStatus
     {
         return new StockStatus(available: true, price: 9900);
     }

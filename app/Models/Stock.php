@@ -42,7 +42,7 @@ class Stock extends Model
      */
     public function track(): void
     {
-        $availability = $this->retailer->client()->checkAvailability();
+        $availability = $this->retailer->client()->checkAvailability($this);
 
         $this->update([
             'in_stock' => $availability->available,

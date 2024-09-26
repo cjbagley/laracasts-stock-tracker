@@ -8,7 +8,7 @@ it('tracks product stock', function () {
 
     expect(Product::first()->inStock())->toBeFalse();
 
-    Http::fake(fn () => ['available' => true, 'price' => 29999]);
+    Http::fake(fn () => ['onlineAvailability' => true, 'salePrice' => 29999]);
 
     $this->artisan('track')
         ->expectsOutput('All done!')
