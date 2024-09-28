@@ -48,5 +48,7 @@ class Stock extends Model
             'in_stock' => $availability->available,
             'price' => $availability->price,
         ]);
+
+        History::create(['price' => $this->price]);
     }
 }
