@@ -6,7 +6,6 @@ use App\Clients\ClientException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Stock extends Model
 {
@@ -38,15 +37,10 @@ class Stock extends Model
         return $this->belongsTo(Retailer::class);
     }
 
-    public function history(): HasMany
-    {
-        return $this->hasMany(History::class);
-    }
-
     /**
      * @throws ClientException
      */
-    public function track(): void
+    public function track(?callable $callback = null): void
     {
         $availability = $this->retailer->client()->checkAvailability($this);
 
@@ -55,15 +49,6 @@ class Stock extends Model
             'price' => $availability->price,
         ]);
 
-        $this->recordHistory();
-    }
-
-    public function recordHistory(): void
-    {
-        $this->history()->create([
-            'product_id' => $this->product_id,
-            'price' => $this->price,
-            'in_stock' => $this->in_stock,
-        ]);
+        $callback && $callback($this);
     }
 }
