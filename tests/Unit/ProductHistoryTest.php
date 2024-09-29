@@ -1,18 +1,20 @@
 <?php
 
 use App\Clients\ClientException;
-use App\Clients\StockStatus;
 use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\RetailerWithProductSeeder;
-use Facades\App\Clients\ClientFactory;
+
+beforeEach(function () {
+    Notification::fake();
+    $this->seed(RetailerWithProductSeeder::class);
+    $this->user = User::factory()->create(['email' => 'colin@test.com']);
+});
 
 it('records history when products are tracked', function () {
-    $this->seed(RetailerWithProductSeeder::class);
     $stock_price = 299;
 
-    ClientFactory::shouldReceive('make->checkAvailability')
-        ->andReturn(new StockStatus(available: true, price: $stock_price));
+    mockClientRequest(price: $stock_price);
 
     $product = Product::first();
 
@@ -34,16 +36,18 @@ it('records history when products are tracked', function () {
         ->and($history->stock_id)->toBe($product->stock[0]->id);
 });
 
-it('notifies the user product comes into stock', function () {
-    Notification::fake();
-
-    $user = User::factory()->create(['email' => 'colin@test.com']);
-
-    $this->seed(RetailerWithProductSeeder::class);
-    ClientFactory::shouldReceive('make->checkAvailability')
-        ->andReturn(new StockStatus(available: true, price: 299));
+it('notifies the user when product comes into stock', function () {
+    mockClientRequest();
 
     $this->artisan('track');
 
-    Notification::assertSentTo($user, \App\Notifications\ImportantStockUpdateNotification::class);
+    Notification::assertSentTo($this->user, \App\Notifications\ImportantStockUpdateNotification::class);
+});
+
+it('does not notify the user if product still out of stock', function () {
+    mockClientRequest(available: false);
+
+    $this->artisan('track');
+
+    Notification::assertNothingSent();
 });

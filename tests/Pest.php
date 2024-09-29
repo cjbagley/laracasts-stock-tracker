@@ -11,6 +11,9 @@
 |
 */
 
+use App\Clients\StockStatus;
+use Facades\App\Clients\ClientFactory;
+
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in(__DIR__);
@@ -41,7 +44,8 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function mockClientRequest(bool $available = true, int $price = 100)
 {
-    // ..
+    ClientFactory::shouldReceive('make->checkAvailability')
+        ->andReturn(new StockStatus(available: $available, price: $price));
 }
