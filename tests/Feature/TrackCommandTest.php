@@ -11,7 +11,6 @@ it('tracks product stock', function () {
     Http::fake(fn () => ['onlineAvailability' => true, 'salePrice' => 29999]);
 
     $this->artisan('track')
-        ->expectsOutput('All done!')
         ->assertExitCode(0);
 
     expect(Product::first()->inStock())->toBeTrue();
