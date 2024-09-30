@@ -35,19 +35,3 @@ it('records history when products are tracked', function () {
         ->and($history->product_id)->toBe($product->id)
         ->and($history->stock_id)->toBe($product->stock[0]->id);
 });
-
-it('notifies the user when product comes into stock', function () {
-    mockClientRequest();
-
-    $this->artisan('track');
-
-    Notification::assertSentTo($this->user, \App\Notifications\ImportantStockUpdateNotification::class);
-});
-
-it('does not notify the user if product still out of stock', function () {
-    mockClientRequest(available: false);
-
-    $this->artisan('track');
-
-    Notification::assertNothingSent();
-});

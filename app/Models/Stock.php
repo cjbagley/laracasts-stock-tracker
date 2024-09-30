@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Clients\ClientException;
-use App\Events\NowInStock;
+use App\UseCases\TrackStock;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,19 +41,8 @@ class Stock extends Model
     /**
      * @throws ClientException
      */
-    public function track(?callable $callback = null): void
+    public function track(): void
     {
-        $availability = $this->retailer->client()->checkAvailability($this);
-
-        if (! $this->in_stock && $availability->available) {
-            event(new NowInStock($this));
-        }
-
-        $this->update([
-            'in_stock' => $availability->available,
-            'price' => $availability->price,
-        ]);
-
-        $callback && $callback($this);
+        TrackStock::dispatch($this);
     }
 }
